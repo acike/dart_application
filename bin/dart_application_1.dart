@@ -25,7 +25,15 @@ void showCustomersOneByOne() {
   }
 }
 
+void add(int a, [int? b]) {
+  // b is optional
+  print(a + (b ?? 0));
+}
+
 void main() {
+  add(1);
+  add(1, 2);
+
   final original = [1, 2, 3];
   final copy = List<int>.from(original); // คัดลอก
   final reference = original; // ชี้ไปที่เดียวกัน

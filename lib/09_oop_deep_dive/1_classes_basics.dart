@@ -1,4 +1,44 @@
 // ไฟล์: lib/09_oop_deep_dive/1_classes_basics.dart
+class Example {
+  final String name;
+  final int age;
+  final DateTime createdAt;
+
+  // 1. Constructor ปกติ
+  Example(this.name, this.age, this.createdAt);
+
+  // 2. Named parameters
+  Example.named({
+    required this.name,
+    required this.age,
+    required this.createdAt,
+  });
+
+  // 3. Optional parameters
+  Example.optional(this.name, [this.age = 0, DateTime? createdAt])
+    : createdAt = createdAt ?? DateTime.now();
+
+  // 4. Initializer list
+  Example.withDefaults(this.name) : age = 0, createdAt = DateTime.now();
+
+  // 5. Redirecting constructor
+  Example.guest() : this('Guest', 0, DateTime.now());
+
+  // 6. Factory constructor
+  factory Example.fromJson(Map<String, dynamic> json) {
+    return Example(
+      json['name'],
+      json['age'],
+      DateTime.parse(json['createdAt']),
+    );
+  }
+  Example.fromJson3(Map<String, dynamic> json)
+    : name = json['name'],
+      age = json['age'],
+      createdAt = DateTime.parse(json['createdAt']);
+  // 7. Const constructor
+  const Example.constant(this.name, this.age, this.createdAt);
+}
 
 // 1. นิยาม Class พื้นฐาน
 // Class คือพิมพ์เขียวสำหรับสร้าง Object

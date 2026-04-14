@@ -102,3 +102,13 @@ void main() {
   var singleton2 = Singleton();
   print(identical(singleton1, singleton2)); // true
 }
+
+class User {
+  final String name;
+
+  User.fromJson(Map<String, dynamic> json) : name = json['name'];
+
+  // factory User.fromJson(Map<String, dynamic> json) {
+  //   return User._internal(json['name']); // สร้างใหม่ทุกครั้ง
+  // }
+}
