@@ -85,9 +85,168 @@ void userProfileExample() {
   print('- ตำแหน่งที่อยู่ (location + coordinates)');
   print('- โพสต์และคอมเมนต์ (arrays ซ้อน objects)');
   print('- การตั้งค่า (nested settings)');
+  print('- ขนาด JSON โดยประมาณ: ${jsonString.length} ตัวอักษร');
 
   // วิธีการจัดการใน Dart
   demonstrateComplexMapHandling();
+}
+
+// Model สำหรับ user profile JSON
+class UserDataResponse {
+  final UserModel user;
+
+  UserDataResponse({required this.user});
+
+  factory UserDataResponse.fromJson(Map<String, dynamic> json) {
+    final Map<String, dynamic> userJson =
+        (json['user'] as Map<String, dynamic>?) ?? <String, dynamic>{};
+    return UserDataResponse(user: UserModel.fromJson(userJson));
+  }
+}
+
+class UserModel {
+  final String id;
+  final ProfileModel profile;
+  final SocialModel social;
+
+  UserModel({required this.id, required this.profile, required this.social});
+
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    final Map<String, dynamic> profileJson =
+        (json['profile'] as Map<String, dynamic>?) ?? <String, dynamic>{};
+    final Map<String, dynamic> socialJson =
+        (json['social'] as Map<String, dynamic>?) ?? <String, dynamic>{};
+
+    return UserModel(
+      id: (json['id'] as String?) ?? '',
+      profile: ProfileModel.fromJson(profileJson),
+      social: SocialModel.fromJson(socialJson),
+    );
+  }
+}
+
+class ProfileModel {
+  final String firstName;
+  final String lastName;
+  final LocationModel location;
+
+  ProfileModel({
+    required this.firstName,
+    required this.lastName,
+    required this.location,
+  });
+
+  factory ProfileModel.fromJson(Map<String, dynamic> json) {
+    final Map<String, dynamic> locationJson =
+        (json['location'] as Map<String, dynamic>?) ?? <String, dynamic>{};
+
+    return ProfileModel(
+      firstName: (json['firstName'] as String?) ?? '',
+      lastName: (json['lastName'] as String?) ?? '',
+      location: LocationModel.fromJson(locationJson),
+    );
+  }
+}
+
+class LocationModel {
+  final String country;
+  final String city;
+  final CoordinatesModel coordinates;
+
+  LocationModel({
+    required this.country,
+    required this.city,
+    required this.coordinates,
+  });
+
+  factory LocationModel.fromJson(Map<String, dynamic> json) {
+    final Map<String, dynamic> coordinatesJson =
+        (json['coordinates'] as Map<String, dynamic>?) ?? <String, dynamic>{};
+
+    return LocationModel(
+      country: (json['country'] as String?) ?? '',
+      city: (json['city'] as String?) ?? '',
+      coordinates: CoordinatesModel.fromJson(coordinatesJson),
+    );
+  }
+}
+
+class CoordinatesModel {
+  final double lat;
+  final double lng;
+
+  CoordinatesModel({required this.lat, required this.lng});
+
+  factory CoordinatesModel.fromJson(Map<String, dynamic> json) {
+    return CoordinatesModel(
+      lat: (json['lat'] as num?)?.toDouble() ?? 0.0,
+      lng: (json['lng'] as num?)?.toDouble() ?? 0.0,
+    );
+  }
+}
+
+class SocialModel {
+  final int followers;
+  final List<PostModel> posts;
+
+  SocialModel({required this.followers, required this.posts});
+
+  factory SocialModel.fromJson(Map<String, dynamic> json) {
+    final List<dynamic> postJsonList = (json['posts'] as List<dynamic>?) ?? [];
+    final List<PostModel> posts = postJsonList
+        .whereType<Map<String, dynamic>>()
+        .map(PostModel.fromJson)
+        .toList();
+
+    return SocialModel(
+      followers: (json['followers'] as int?) ?? 0,
+      posts: posts,
+    );
+  }
+}
+
+class PostModel {
+  final String id;
+  final String content;
+  final int likes;
+  final List<CommentModel> comments;
+
+  PostModel({
+    required this.id,
+    required this.content,
+    required this.likes,
+    required this.comments,
+  });
+
+  factory PostModel.fromJson(Map<String, dynamic> json) {
+    final List<dynamic> commentJsonList =
+        (json['comments'] as List<dynamic>?) ?? [];
+    final List<CommentModel> comments = commentJsonList
+        .whereType<Map<String, dynamic>>()
+        .map(CommentModel.fromJson)
+        .toList();
+
+    return PostModel(
+      id: (json['id'] as String?) ?? '',
+      content: (json['content'] as String?) ?? '',
+      likes: (json['likes'] as int?) ?? 0,
+      comments: comments,
+    );
+  }
+}
+
+class CommentModel {
+  final String user;
+  final String text;
+
+  CommentModel({required this.user, required this.text});
+
+  factory CommentModel.fromJson(Map<String, dynamic> json) {
+    return CommentModel(
+      user: (json['user'] as String?) ?? '',
+      text: (json['text'] as String?) ?? '',
+    );
+  }
 }
 
 // แสดงวิธีจัดการ Map ที่ซับซ้อน
@@ -124,35 +283,30 @@ void demonstrateComplexMapHandling() {
     },
   };
 
-  // วิธีการเข้าถึงข้อมูลอย่างปลอดภัย
-  print('\n🔍 วิธีเข้าถึงข้อมูล:');
+  // แปลง Map ให้เป็น Model เพื่อให้เรียกใช้งานง่ายและ type-safe
+  final UserDataResponse response = UserDataResponse.fromJson(userData);
+  final UserModel user = response.user;
 
-  // 1. เข้าถึงข้อมูลพื้นฐาน
-  final String? firstName = userData['user']?['profile']?['firstName'];
-  print('ชื่อ: ${firstName ?? "ไม่มีข้อมูล"}');
+  print('\n🔍 วิธีเข้าถึงข้อมูลผ่าน Model:');
+  print('ชื่อ: ${user.profile.firstName}');
 
-  // 2. เข้าถึงข้อมูลที่ซ้อนลึก
-  final int? likes = userData['user']?['social']?['posts']?[0]?['likes'];
-  print('ไลค์โพสต์แรก: ${likes ?? 0}');
+  final int firstPostLikes = user.social.posts.isNotEmpty
+      ? user.social.posts.first.likes
+      : 0;
+  print('ไลค์โพสต์แรก: $firstPostLikes');
 
-  // 3. จัดการ Array ที่ซ้อนใน Object
-  final List<dynamic>? posts = userData['user']?['social']?['posts'];
-  if (posts != null) {
-    print('\nจำนวนโพสต์: ${posts.length}');
-    for (int i = 0; i < posts.length; i++) {
-      final post = posts[i];
-      print('โพสต์ ${i + 1}: ${post['content']}');
+  print('\nจำนวนโพสต์: ${user.social.posts.length}');
+  for (int i = 0; i < user.social.posts.length; i++) {
+    final PostModel post = user.social.posts[i];
+    print('โพสต์ ${i + 1}: ${post.content}');
 
-      // จัดการคอมเมนต์ (Array ใน Array)
-      final List<dynamic>? comments = post['comments'];
-      if (comments != null && comments.isNotEmpty) {
-        print('  คอมเมนต์: ${comments.length} รายการ');
-        for (var comment in comments) {
-          print('  - ${comment['user']}: ${comment['text']}');
-        }
-      } else {
-        print('  ไม่มีคอมเมนต์');
+    if (post.comments.isNotEmpty) {
+      print('  คอมเมนต์: ${post.comments.length} รายการ');
+      for (final CommentModel comment in post.comments) {
+        print('  - ${comment.user}: ${comment.text}');
       }
+    } else {
+      print('  ไม่มีคอมเมนต์');
     }
   }
 }

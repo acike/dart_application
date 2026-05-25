@@ -60,6 +60,8 @@ void main() {
 
   // 6. where (กรองข้อมูล) + forEach
   print('\n==== where + forEach ====');
+  var a = fruits.where((fruit) => fruit.length > 3).toList();
+  var b = fruits.where((fruit) => fruit.length > 3);
   fruits
       .where((fruit) => fruit.length > 3)
       .forEach((fruit) => print('ผลไม้ที่ชื่อยาวกว่า 3 ตัวอักษร: $fruit'));

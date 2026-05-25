@@ -3,11 +3,7 @@ class Order {
   final double amount;
   final String status;
 
-  Order({
-    required this.id,
-    required this.amount,
-    required this.status,
-  });
+  Order({required this.id, required this.amount, required this.status});
 
   // == : บอกว่า object 2 ตัว "ค่าเท่ากัน" เมื่อ field สำคัญเท่ากัน
   @override
@@ -42,9 +38,7 @@ void main() {
   print('\n--- hashCode ---');
   print('order1.hashCode: ${order1.hashCode}');
   print('order2.hashCode: ${order2.hashCode}');
-  print(
-    'hashCode เท่ากันไหม: ${order1.hashCode == order2.hashCode}',
-  ); // true
+  print('hashCode เท่ากันไหม: ${order1.hashCode == order2.hashCode}'); // true
 
   print('\n--- ใช้กับ Set ---');
   final Set<Order> orderSet = <Order>{order1, order2};
